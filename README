@@ -1,0 +1,50 @@
+
+mincore is a utility I wrote a long time ago to help analyze database performance.
+
+One of the main factors was how much of the database could be cache in memory, to minimize the physical IO required for DB operations. Memory is now much cheaper, but at the time, 4GB was a lot of memory, and at best we could hope to keep the interior nodes of the btree in memory, and only do one IO for the leaf.
+
+I saw there are other similar implementations now, including one called fincore (https://man7.org/linux/man-pages/man1/fincore.1.html), and a few written in go, including https://github.com/tobert/pcstat that has some nice output features.
+
+This one is written in C, and should compile readily with either gcc or clang. For each file in argv, it will mmap(2) the file, halving the mmap size on ENOMEM failure, and then call mincore(2) to count file pages in and out of system core memory.
+
+Here is example usage. You can see that tar needs to read the whole file to list contents, where zip only needs to fault in a small portion of the file.
+
+$ ./mincore ~/Downloads/bookkeeper-*
+  pages     pages not  %
+ in core     in core   in          file
+---------- ---------- ----  --------------------
+         0      17729   0   /home/tim/Downloads/bookkeeper-all-4.7.3-bin.tar.gz
+         0      17948   0   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz
+         1          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz.asc
+         1          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz.sha512
+         0       1580   0   /home/tim/Downloads/bookkeeper-release-4.7.3.zip
+---------- ---------- ----  --------------------
+         2      37257   0   total pages
+       0.0      145.5       total MB (4kb pages)
+$ tar tzvf ~/Downloads/bookkeeper-all-4.9.2-bin.tar.gz > /dev/null
+$ ./mincore ~/Downloads/bookkeeper-*
+  pages     pages not  %
+ in core     in core   in          file
+---------- ---------- ----  --------------------
+         0      17729   0   /home/tim/Downloads/bookkeeper-all-4.7.3-bin.tar.gz
+     17948          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz
+         1          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz.asc
+         1          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz.sha512
+         0       1580   0   /home/tim/Downloads/bookkeeper-release-4.7.3.zip
+---------- ---------- ----  --------------------
+     17950      19309  48   total pages
+      70.1       75.4       total MB (4kb pages)
+$ zipinfo -l ~/Downloads/bookkeeper-release-4.7.3.zip > /dev/null
+$ ./mincore ~/Downloads/bookkeeper-*
+  pages     pages not  %
+ in core     in core   in          file
+---------- ---------- ----  --------------------
+         0      17729   0   /home/tim/Downloads/bookkeeper-all-4.7.3-bin.tar.gz
+     17948          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz
+         1          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz.asc
+         1          0 100   /home/tim/Downloads/bookkeeper-all-4.9.2-bin.tar.gz.sha512
+       132       1448   8   /home/tim/Downloads/bookkeeper-release-4.7.3.zip
+---------- ---------- ----  --------------------
+     18082      19177  48   total pages
+      70.6       74.9       total MB (4kb pages)
+$ 

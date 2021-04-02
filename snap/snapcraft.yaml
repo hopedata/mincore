@@ -1,0 +1,26 @@
+name: mincore
+version: "0.9"
+summary: CLI utility to use mincore(2) system call
+description: |
+  mincore is a utility to show how much of a file
+  is cached in system memory. For each file in argv,
+  it will mmap(2) the file and use mincore(2) to count
+  file pages in and out of memory. 
+
+confinement: devmode
+base: core18
+
+parts:
+  mincore:
+    plugin: autotools
+    source-type: tar
+    source: http://source.dosbox.com/dosboxsvn.tgz
+    build-packages:
+      - gcc
+      - make
+    stage-packages:
+
+apps:
+  mincore:
+    command: mincore
+    environment:
