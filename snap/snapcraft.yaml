@@ -12,13 +12,13 @@ base: core18
 
 parts:
   mincore:
-    source: https://github.com/hopedata/mincore
+    plugin: make
+    source: git://github.com/hopedata/mincore
     build-packages:
       - gcc
       - make
-    stage-packages:
 
 apps:
   mincore:
-    command: mincore
-    environment:
+    command: /usr/bin/mincore
+
