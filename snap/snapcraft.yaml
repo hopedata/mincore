@@ -12,9 +12,7 @@ base: core18
 
 parts:
   mincore:
-    plugin: autotools
-    source-type: tar
-    source: http://source.dosbox.com/dosboxsvn.tgz
+    source: https://github.com/hopedata/mincore
     build-packages:
       - gcc
       - make
