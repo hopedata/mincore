@@ -6,8 +6,9 @@ description: |
   is cached in system memory. For each file in argv,
   it will mmap(2) the file and use mincore(2) to count
   file pages in and out of memory. 
-
 confinement: devmode
+type: app
+grade: stable
 base: core18
 
 parts:
@@ -20,5 +21,5 @@ parts:
 
 apps:
   mincore:
-    command: /usr/bin/mincore
+    command: usr/bin/mincore
 
