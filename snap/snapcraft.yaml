@@ -2,10 +2,9 @@ name: mincore
 version: "0.9"
 summary: CLI utility to use mincore(2) system call
 description: |
-  mincore is a utility to show how much of a file
-  is cached in system memory. For each file in argv,
-  it will mmap(2) the file and use mincore(2) to count
-  file pages in and out of memory. 
+  mincore is a utility to show how much of a file is cached in system memory. For each file in argv,
+  it will mmap the file and use the mincore() system to count file pages in and out of memory.
+  This can be useful to understand performance where buffer cache and IO is a factor, as in databases.
 confinement: devmode
 type: app
 grade: stable
