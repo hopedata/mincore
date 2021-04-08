@@ -5,7 +5,7 @@ description: |
   mincore is a utility to show how much of a file is cached in system memory. For each file in argv,
   it will mmap the file and use the mincore() system to count file pages in and out of memory.
   This can be useful to understand performance where buffer cache and IO is a factor, as in databases.
-confinement: strict
+confinement: classic
 type: app
 grade: stable
 base: core18
