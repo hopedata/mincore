@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #ifndef SIZE_MAX
 #define SIZE_MAX ((size_t)-1)
@@ -39,6 +40,9 @@
 #define DEBUG1(c)
 #endif /* DEBUG */
 
+#define APP_NAME "mincore"
+#define VERSION "0.9"
+
 struct pagecorestat {
   int in;
   int out;
@@ -48,6 +52,18 @@ struct pagecorestat {
 
 struct pagecorestat checkcorestat(char *file);
 
+/*
+ *  usage()
+ *	simple help
+ */
+static void usage(char *const argv[])
+{
+	(void)printf("%s, version %s\n\n", APP_NAME, VERSION);
+	(void)printf("usage: %s [-h] file ...\n", argv[0]);
+	(void)printf("-h\tshow usage.\n");
+}
+
+
 int main(int argc, char *argv[]) {
   int f;
   long pagesize = sysconf(_SC_PAGESIZE); /* bytes per page */
@@ -55,6 +71,24 @@ int main(int argc, char *argv[]) {
   struct pagecorestat pagestat;
   int tpi = 0, tpo = 0; /* summation counters for pages in/out */
 
+  if ( argc < 2 ) {
+    usage(argv);
+    exit(EXIT_FAILURE);
+  }
+  for (;;) {
+    const int c = getopt(argc, argv, "h");
+    if (c == -1)
+      break;
+    switch (c) {
+    case 'h':
+      usage(argv);
+      exit(EXIT_SUCCESS);
+    default:
+      usage(argv);
+      exit(EXIT_FAILURE);
+    }
+  }
+  
   if (pagesize == 0L) {
     (void)fprintf(stderr, "ERROR: page size is %ld\n", pagesize);
     exit(EXIT_FAILURE);
