@@ -1,0 +1,72 @@
+.\" Process this file with
+.\" groff -man -Tascii foo.1
+.\"
+.\" .TH MINCORE 1 "April 2021" Linux "User Manuals"
+.TH MINCORE 1 "April 2021"
+.SH NAME
+mincore \- a tool to report in-memory status of files
+.SH SYNOPSIS
+.B mincore 
+.I file
+.B ...
+.SH DESCRIPTION
+.B mincore
+mincore is a program that allows one to display percentage of file pages
+that are in and out of core (in system memory). It does this with the
+mincore(2) system call, which reports in-core status of mapped files.
+To do this, mincore must mmap() each file argument, so the files must
+be readable, but will not be read. All files are processed in the order
+specified. Files that are too big for mmap will be processed piecewise.
+.SH OPTIONS
+.IP -h
+Show usage help
+.SH EXAMPLES
+.ES
+$ ./mincore myfile*
+  pages     pages not  %
+ in core     in core   in          file
+---------- ---------- ----  --------------------
+         0      17729   0   myfile-4.7.3-bin.tar.gz
+         0      17948   0   myfile-4.9.2-bin.tar.gz
+         0       1580   0   myfile-4.7.3.zip
+---------- ---------- ----  --------------------
+         0      37257   0   total pages
+       0.0      145.5       total MB (4kb pages)
+.P
+$ tar tzvf myfile-4.9.2-bin.tar.gz > /dev/null
+.P
+$ ./mincore ~/Downloads/myfile*
+  pages     pages not  %
+ in core     in core   in          file
+---------- ---------- ----  --------------------
+         0      17729   0   myfile-4.7.3-bin.tar.gz
+     17948          0 100   myfile-4.9.2-bin.tar.gz
+         0       1580   0   myfile-4.7.3.zip
+---------- ---------- ----  --------------------
+     17948      19309  48   total pages
+      70.1       75.4       total MB (4kb pages)
+.P
+$ zipinfo -l myfile-4.7.3.zip > /dev/null
+.P
+$ ./mincore myfile-*
+  pages     pages not  %
+ in core     in core   in          file
+---------- ---------- ----  --------------------
+         0      17729   0   myfile-4.7.3-bin.tar.gz
+     17948          0 100   myfile-4.9.2-bin.tar.gz
+       132       1448   8   myfile-4.7.3.zip
+---------- ---------- ----  --------------------
+     18080      19177  48   total pages
+      70.6       74.9       total MB (4kb pages)
+
+.EE
+.SH DIAGNOSTICS
+Unreadable files, or arguments that are not regular files will
+return a diagnostic.
+.SH BUGS
+The output format is fixed, and is not responsive to the tty width,
+nor is there an option for parseable output.
+.SH AUTHOR
+Tim Butler (https://www.github.com/hopedata/mincore)
+.SH "SEE ALSO"
+.BR mincore (2)
