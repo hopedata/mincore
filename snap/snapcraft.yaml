@@ -1,11 +1,11 @@
 name: mincore
-version: "0.9"
+version: "1.0"
 summary: CLI utility to use mincore(2) system call
 description: |
   mincore is a utility to show how much of a file is cached in system memory. For each file in argv,
   it will mmap the file and use the mincore() system to count file pages in and out of memory.
   This can be useful to understand performance where buffer cache and IO is a factor, as in databases.
-confinement: classic
+confinement: strict
 type: app
 grade: stable
 base: core18
@@ -13,12 +13,23 @@ base: core18
 parts:
   mincore:
     plugin: make
-    source: git://github.com/hopedata/mincore
+    source: .
     build-packages:
       - gcc
       - make
 
+plugs:
+  mysql-mincore:
+    interface: system-backup
+    read:
+    - /var/lib/mysql
+  postgresql-mincore:
+    interface: system-backup
+    read:
+    - /var/lib/pgsql/data
+
 apps:
   mincore:
     command: usr/bin/mincore
+    plugs: [system-observe,physical-memory-observe,system-backup]
 
